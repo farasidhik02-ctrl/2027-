@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#07111f" />
+  <title>Study Command Centre</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <div id="authView" class="auth-shell hidden">
+    <div class="auth-card">
+      <div class="brand brand-large"><span class="brand-icon">🎯</span><div><strong>Study Command Centre</strong><small>Your strict study body double</small></div></div>
+      <h1>Sign in</h1>
+      <p class="muted">Your tasks, streak, reviews and errors sync across devices.</p>
+      <label>Email<input id="authEmail" type="email" placeholder="you@example.com" /></label>
+      <label>Password<input id="authPassword" type="password" placeholder="••••••••" /></label>
+      <button id="signInBtn" class="btn primary wide">Sign in</button>
+      <button id="signUpBtn" class="btn ghost wide">Create account</button>
+      <button id="offlineBtn" class="btn subtle wide">Use offline mode</button>
+      <p id="authMessage" class="small muted"></p>
+    </div>
+  </div>
+
+  <div id="app" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-icon">🎯</span><div><strong>STUDY</strong><span>COMMAND CENTRE</span></div></div>
+      <nav id="mainNav" class="nav-list">
+        <button class="nav-item active" data-view="today">🏠 <span>Today</span></button>
+        <button class="nav-item" data-view="plan">🗓️ <span>My Plan</span></button>
+        <button class="nav-item" data-view="subjects">📚 <span>Subjects</span></button>
+        <button class="nav-item" data-view="revision">🧠 <span>Revision</span></button>
+        <button class="nav-item" data-view="errors">❌ <span>Error Directory</span></button>
+        <button class="nav-item" data-view="progress">📊 <span>Progress</span></button>
+        <button class="nav-item" data-view="rewards">🏆 <span>XP & Rewards</span></button>
+        <button class="nav-item" data-view="settings">⚙️ <span>Settings</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div id="syncBadge" class="sync-badge">● Local</div>
+        <button id="logoutBtn" class="btn subtle wide">Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow" id="greeting">TODAY</div>
+          <h1 id="dateLabel">Study Command Centre</h1>
+        </div>
+        <div class="top-stats">
+          <div class="stat-chip"><span>🔥</span><div><b id="streakValue">0</b><small>day streak</small></div></div>
+          <div class="stat-chip"><span>💎</span><div><b id="xpValue">0</b><small>XP</small></div></div>
+          <button id="quickAddBtn" class="btn primary">+ Add Task</button>
+        </div>
+      </header>
+
+      <section id="todayView" class="view active-view">
+        <div class="grid-main">
+          <section class="panel today-panel">
+            <div class="panel-head">
+              <div><h2>Today's Plan</h2><p class="muted">Do these in order. One task at a time.</p></div>
+              <div class="day-controls">
+                <select id="energyMode">
+                  <option value="180">Minimum day · 3h</option>
+                  <option value="240" selected>Normal day · 4h</option>
+                  <option value="360">Push day · 6h</option>
+                </select>
+                <button id="replanBtn" class="btn ghost">↻ Replan</button>
+              </div>
+            </div>
+
+            <div class="strict-banner">⭐ Your only job is the next unchecked task. Don't syllabus-hop.</div>
+
+            <div id="taskList" class="task-list"></div>
+            <div id="emptyTasks" class="empty-state hidden">No tasks for today. Add one manually or generate the starter plan.</div>
+
+            <div class="minimum-goal-card">
+              <div><strong>Minimum goal</strong><p><span id="goalDone">0</span>/<span id="goalTarget">3</span> tasks</p></div>
+              <div class="progress-track"><div id="goalBar" class="progress-fill"></div></div>
+              <small>Hit the minimum goal to protect your streak.</small>
+            </div>
+          </section>
+
+          <aside class="right-column">
+            <section class="panel focus-panel">
+              <div class="panel-head"><div><h3>Focus Timer</h3><p id="timerTaskName" class="muted">Choose a task and start</p></div><select id="timerMode"><option value="countdown">Countdown</option><option value="pomodoro">Pomodoro</option><option value="recall">Recall</option></select></div>
+              <div id="timerDisplay" class="timer-display">25:00</div>
+              <div class="timer-actions"><button id="timerStartBtn" class="btn primary">▶ Start</button><button id="timerPauseBtn" class="btn ghost">Pause</button><button id="timerResetBtn" class="btn subtle">Reset</button></div>
+              <div class="timer-presets"><button data-min="10">10m</button><button data-min="25">25m</button><button data-min="45">45m</button><button data-min="60">60m</button></div>
+            </section>
+
+            <section class="panel recall-panel">
+              <div class="panel-head"><div><h3>Active Recall</h3><p class="muted">Close notes. Recall from memory.</p></div><span id="recallCount" class="count-pill">0 due</span></div>
+              <div id="recallList" class="mini-list"></div>
+            </section>
+
+            <section class="panel carry-panel">
+              <div class="panel-head"><div><h3>Carry Over</h3><p class="muted">Missed tasks are rescheduled, not piled up.</p></div><span id="carryCount" class="count-pill">0</span></div>
+              <div id="carryList" class="mini-list"></div>
+            </section>
+          </aside>
+        </div>
+      </section>
+
+      <section id="planView" class="view">
+        <section class="panel"><div class="panel-head"><div><h2>My Plan</h2><p class="muted">Upcoming tasks by date.</p></div></div><div id="planList" class="stack-list"></div></section>
+      </section>
+
+      <section id="subjectsView" class="view">
+        <section class="panel"><div class="panel-head"><div><h2>Subjects</h2><p class="muted">Micro-topic inventory and status.</p></div></div><div id="subjectCards" class="cards-grid"></div></section>
+      </section>
+
+      <section id="revisionView" class="view">
+        <section class="panel"><div class="panel-head"><div><h2>Spaced Repetition</h2><p class="muted">Automatic intervals: 1 → 3 → 7 → 14 → 30 days, adapted by confidence.</p></div></div><div id="revisionList" class="stack-list"></div></section>
+      </section>
+
+      <section id="errorsView" class="view">
+        <section class="panel">
+          <div class="panel-head"><div><h2>Error Directory</h2><p class="muted">Only what you asked for: exam, subject, topic.</p></div><button id="addErrorBtn" class="btn primary">+ Add Error</button></div>
+          <div class="filters"><select id="errorExamFilter"><option value="">All exams</option></select><input id="errorSearch" placeholder="Search topic or subject" /></div>
+          <div id="errorList" class="error-list"></div>
+        </section>
+      </section>
+
+      <section id="progressView" class="view">
+        <section class="panel"><div class="panel-head"><div><h2>Exam Progress</h2><p class="muted">This is where micro-topics remaining live, not on your homepage.</p></div></div><div id="examProgressCards" class="progress-cards"></div></section>
+      </section>
+
+      <section id="rewardsView" class="view">
+        <section class="panel"><div class="panel-head"><div><h2>XP & Rewards</h2><p class="muted">XP comes from completion + real focus time + recall/revision.</p></div></div><div class="reward-hero"><div><span class="big-number" id="rewardXP">0</span><p>Total XP</p></div><div><span class="big-number" id="rewardLevel">1</span><p>Level</p></div><div><span class="big-number" id="rewardStreak">0</span><p>Current streak</p></div></div><div id="xpRules" class="rules"></div></section>
+      </section>
+
+      <section id="settingsView" class="view">
+        <section class="panel settings-panel"><div class="panel-head"><div><h2>Settings</h2><p class="muted">Strict defaults with an escape hatch.</p></div></div>
+          <label>Default daily study time (minutes)<input id="dailyMinutesSetting" type="number" min="30" max="720" step="15" /></label>
+          <label>Minimum goal (tasks)<input id="minimumGoalSetting" type="number" min="1" max="20" /></label>
+          <label>Pomodoro focus minutes<input id="pomodoroFocusSetting" type="number" min="10" max="90" /></label>
+          <label>Pomodoro break minutes<input id="pomodoroBreakSetting" type="number" min="3" max="30" /></label>
+          <button id="saveSettingsBtn" class="btn primary">Save settings</button>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="taskDialog" class="modal">
+    <form method="dialog" id="taskForm">
+      <div class="modal-head"><h2>Add task</h2><button value="cancel" class="icon-btn">✕</button></div>
+      <label>Exactly what are you doing?<input id="taskTitle" required placeholder="e.g. Kothari Commission: 10+2+3 + three-language formula" /></label>
+      <div class="two-col"><label>Exam<select id="taskExam"></select></label><label>Subject<input id="taskSubject" placeholder="Education" /></label></div>
+      <label>Topic<input id="taskTopic" placeholder="Kothari Commission" /></label>
+      <div class="two-col"><label>Minutes<input id="taskMinutes" type="number" min="5" max="360" value="30" /></label><label>Type<select id="taskType"><option value="study">Study</option><option value="mcq">MCQ</option><option value="pyq">PYQ</option><option value="current_affairs">Current Affairs</option><option value="recall">Recall</option><option value="revision">Revision</option><option value="mock">Mock</option><option value="manual">Manual</option></select></label></div>
+      <div class="two-col"><label>Priority<select id="taskPriority"><option value="5">Critical</option><option value="4">High</option><option value="3" selected>Normal</option><option value="2">Low</option><option value="1">Optional</option></select></label><label>Date<input id="taskDate" type="date" /></label></div>
+      <menu><button value="cancel" class="btn ghost">Cancel</button><button id="saveTaskBtn" value="default" class="btn primary">Add task</button></menu>
+    </form>
+  </dialog>
+
+  <dialog id="errorDialog" class="modal small-modal">
+    <form method="dialog" id="errorForm">
+      <div class="modal-head"><h2>Add error</h2><button value="cancel" class="icon-btn">✕</button></div>
+      <label>Exam<select id="errorExam" required></select></label>
+      <label>Subject<input id="errorSubject" required placeholder="Economics" /></label>
+      <label>Topic<input id="errorTopic" required placeholder="Plan Holiday dates" /></label>
+      <menu><button value="cancel" class="btn ghost">Cancel</button><button id="saveErrorBtn" value="default" class="btn primary">Save error</button></menu>
+    </form>
+  </dialog>
+
+  <dialog id="reviewDialog" class="modal small-modal">
+    <form method="dialog" id="reviewForm">
+      <div class="modal-head"><h2>How did recall feel?</h2><button value="cancel" class="icon-btn">✕</button></div>
+      <p id="reviewTopicLabel"></p>
+      <div class="rating-buttons"><button type="button" data-rating="weak" class="rating weak">🔴 Weak</button><button type="button" data-rating="shaky" class="rating shaky">🟡 Shaky</button><button type="button" data-rating="strong" class="rating strong">🟢 Strong</button></div>
+    </form>
+  </dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
