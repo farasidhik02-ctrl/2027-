@@ -41,6 +41,12 @@
         <button class="nav-item" data-view="rewards">🏆 <span>XP & Rewards</span></button>
         <button class="nav-item" data-view="settings">⚙️ <span>Settings</span></button>
       </nav>
+      <div id="deadlinePanel" class="deadline-panel">
+        <div class="deadline-title">EXAM COUNTDOWN</div>
+        <div class="deadline-row"><span>Kerala PSC</span><b id="pscDaysLeft">—</b><small>days</small></div>
+        <div class="deadline-row"><span>UPSC Prelims</span><b id="upscDaysLeft">—</b><small>days</small></div>
+        <div class="deadline-row muted-deadline"><span>Pub Ad</span><b>Priority</b><small>no date set</small></div>
+      </div>
       <div class="sidebar-bottom">
         <div id="syncBadge" class="sync-badge">● Local</div>
         <button id="logoutBtn" class="btn subtle wide">Sign out</button>
@@ -55,7 +61,7 @@
         </div>
         <div class="top-stats">
           <div class="stat-chip"><span>🔥</span><div><b id="streakValue">0</b><small>day streak</small></div></div>
-          <div class="stat-chip"><span>💎</span><div><b id="xpValue">0</b><small>XP</small></div></div>
+          <div class="stat-chip"><span>💎</span><div><b id="xpValue">0</b><small>XP</small></div></div><div class="stat-chip"><span>⏱</span><div><b id="focusMinutesValue">0</b><small>min today</small></div></div>
           <button id="quickAddBtn" class="btn primary">+ Add Task</button>
         </div>
       </header>
@@ -75,7 +81,7 @@
               </div>
             </div>
 
-            <div class="strict-banner">⭐ Your only job is the next unchecked task. Don't syllabus-hop.</div>
+            <div id="pscPaceBanner" class="strict-banner">🎯 Loading PSC pace…</div>
 
             <div id="taskList" class="task-list"></div>
             <div id="emptyTasks" class="empty-state hidden">No tasks for today. Add one manually or generate the starter plan.</div>
@@ -90,7 +96,7 @@
           <aside class="right-column">
             <section class="panel focus-panel">
               <div class="panel-head"><div><h3>Focus Timer</h3><p id="timerTaskName" class="muted">Choose a task and start</p></div><select id="timerMode"><option value="countdown">Countdown</option><option value="pomodoro">Pomodoro</option><option value="recall">Recall</option></select></div>
-              <div id="timerDisplay" class="timer-display">25:00</div>
+              <div id="timerDisplay" class="timer-display">25:00</div><div class="timer-progress"><div id="timerProgressFill" class="timer-progress-fill"></div></div><div id="timerStatus" class="timer-status" data-kind="ready">Ready</div><div id="focusTodayText" class="focus-today">0 min studied today</div>
               <div class="timer-actions"><button id="timerStartBtn" class="btn primary">▶ Start</button><button id="timerPauseBtn" class="btn ghost">Pause</button><button id="timerResetBtn" class="btn subtle">Reset</button></div>
               <div class="timer-presets"><button data-min="10">10m</button><button data-min="25">25m</button><button data-min="45">45m</button><button data-min="60">60m</button></div>
             </section>
@@ -113,7 +119,7 @@
       </section>
 
       <section id="subjectsView" class="view">
-        <section class="panel"><div class="panel-head"><div><h2>Subjects</h2><p class="muted">Micro-topic inventory and status.</p></div></div><div id="subjectCards" class="cards-grid"></div></section>
+        <section class="panel"><div class="panel-head"><div><h2>Full Syllabus Map</h2><p class="muted">Official syllabus → intermediate heading (when useful) → micro-topic. Every micro-topic is anchored to an official syllabus line.</p></div></div><div class="syllabus-tools"><select id="syllabusExamFilter"><option value="">All exams</option></select><input id="syllabusSearch" type="search" placeholder="Search any topic or micro-topic…"></div><div id="syllabusSummary" class="syllabus-summary"></div><div id="subjectCards" class="syllabus-tree"></div></section>
       </section>
 
       <section id="revisionView" class="view">
@@ -129,7 +135,9 @@
       </section>
 
       <section id="progressView" class="view">
+        <section class="panel"><div class="panel-head"><div><h2>Study Time</h2><p class="muted">Your timer history is permanent. Daily counters reset; these totals do not.</p></div></div><div id="studyTimeCards" class="study-time-cards"></div><div id="studyCalendar" class="study-calendar"></div></section>
         <section class="panel"><div class="panel-head"><div><h2>Exam Progress</h2><p class="muted">This is where micro-topics remaining live, not on your homepage.</p></div></div><div id="examProgressCards" class="progress-cards"></div></section>
+        <section class="panel"><div class="panel-head"><div><h2>Completed Topics</h2><p class="muted">Permanent history of syllabus micro-topics you have studied or mastered.</p></div></div><div id="completedTopicsList" class="stack-list"></div></section>
       </section>
 
       <section id="rewardsView" class="view">
@@ -178,8 +186,20 @@
     </form>
   </dialog>
 
+
+  <dialog id="timerDoneDialog" class="modal small-modal timer-done-modal">
+    <form method="dialog">
+      <div class="timer-done-icon">⏰</div>
+      <h2>Time's up</h2>
+      <p id="timerDoneText">Your focus session is complete.</p>
+      <menu><button value="ok" class="btn primary">Got it</button></menu>
+    </form>
+  </dialog>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
+  <script src="syllabus-data.js"></script>
+  <script src="psc-40-day-plan.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

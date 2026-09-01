@@ -121,3 +121,16 @@ create policy "scc_reviews_own" on public.scc_reviews for all to authenticated u
 create policy "scc_errors_own" on public.scc_errors for all to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "scc_sessions_own" on public.scc_sessions for all to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "scc_stats_own" on public.scc_stats for all to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- V2 syllabus metadata (safe to run after V1)
+alter table public.scc_microtopics add column if not exists source_key text;
+alter table public.scc_microtopics add column if not exists source_name text;
+alter table public.scc_microtopics add column if not exists source_order integer;
+alter table public.scc_microtopics add column if not exists paper text;
+alter table public.scc_microtopics add column if not exists concept_key text;
+alter table public.scc_microtopics add column if not exists is_leaf boolean not null default true;
+alter table public.scc_microtopics add column if not exists counts_toward_completion boolean not null default true;
+alter table public.scc_microtopics add column if not exists recurring boolean not null default false;
+create index if not exists scc_microtopics_user_exam_status_idx on public.scc_microtopics(user_id, exam_id, status);
+create index if not exists scc_microtopics_user_source_order_idx on public.scc_microtopics(user_id, exam_id, source_order);
+create unique index if not exists scc_microtopics_user_source_key_uidx on public.scc_microtopics(user_id, source_key);
